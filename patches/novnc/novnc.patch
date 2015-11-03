@@ -1,0 +1,12 @@
+diff -ruN novnc-old/include/rfb.js novnc-new/include/rfb.js
+--- novnc-old/include/rfb.js	2011-10-05 15:55:51.000000000 +0100
++++ novnc-new/include/rfb.js	2012-10-10 15:06:25.320256318 +0100
+@@ -46,7 +46,7 @@
+     // In preference order
+     encodings      = [
+         ['COPYRECT',         0x01 ],
+-        ['TIGHT_PNG',        -260 ],
++        //['TIGHT_PNG',        -260 ],
+         ['HEXTILE',          0x05 ],
+         ['RRE',              0x02 ],
+         ['RAW',              0x00 ],

@@ -1,0 +1,30 @@
+diff -ruN ezPyCrypto-0.1.1-old/ezPyCrypto.py ezPyCrypto-0.1.1-new/ezPyCrypto.py
+--- ezPyCrypto-0.1.1-old/ezPyCrypto.py	2003-07-24 00:03:43.000000000 +0100
++++ ezPyCrypto-0.1.1-new/ezPyCrypto.py	2012-11-23 14:00:00.280329567 +0000
+@@ -69,7 +69,7 @@
+ from Crypto.PublicKey import ElGamal, DSA, RSA
+ from Crypto.Util.randpool import RandomPool
+ from Crypto.Util.number import getPrime
+-from Crypto.Cipher import ARC2, Blowfish, CAST, DES3, IDEA, RC5
++from Crypto.Cipher import ARC2, Blowfish, CAST, DES3
+ from Crypto.Hash import MD5
+ 
+ #@-body
+@@ -168,13 +168,13 @@
+     _algosPub1 = {ElGamal:'ElGamal', RSA:'RSA'}
+     
+     _algosSes = { "ARC2":ARC2, "Blowfish":Blowfish, "CAST":CAST,
+-                  "DES3":DES3, "IDEA":IDEA, "RC5":RC5}
+-    _algosSes1 = {'ARC2':0, 'Blowfish':1, 'CAST':2, 'DES3':3, 'IDEA':4, 'RC5':5}
++                  "DES3":DES3}
++    _algosSes1 = {'ARC2':0, 'Blowfish':1, 'CAST':2, 'DES3':3}
+     
+-    _algosSes2 = [ARC2, Blowfish, CAST, DES3, IDEA, RC5]
++    _algosSes2 = [ARC2, Blowfish, CAST, DES3]
+     
+     _algosSes3 = {ARC2:'ARC2', Blowfish:'Blowfish', CAST:'CAST',
+-                  DES3:'DES3', IDEA:'IDEA', RC5:'RC5'}
++                  DES3:'DES3'}
+     
+     # Generate IV for passphrase encryption
+     _passIV = "w8Z4(51fKH#p{!29Q05HWcb@K 6(1qdyv{9|4=+gvji$chw!9$38^2cyGK#;}'@DHx%3)q_skvh4#0*="

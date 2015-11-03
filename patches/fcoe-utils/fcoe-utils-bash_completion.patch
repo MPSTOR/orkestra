@@ -1,0 +1,12 @@
+diff -ruN fcoe-utils-v3.10.old/Makefile.am fcoe-utils-v3.10.new/Makefile.am
+--- fcoe-utils-v3.10.old/Makefile.am	2013-08-13 18:29:10.000000000 +0100
++++ fcoe-utils-v3.10.new/Makefile.am	2013-10-04 12:03:31.729937581 +0100
+@@ -67,7 +67,7 @@
+ 
+ dist_noinst_DATA = README COPYING INSTALL fcoe-utils.spec etc/config
+ 
+-BASH_COMPLETION_DIR=/etc/bash_completion.d/
++BASH_COMPLETION_DIR=etc/bash_completion.d/
+ 
+ install-data-hook:
+ 	if [ ! -f ${DESTDIR}${fcoe_configdir}/config ] ; then \

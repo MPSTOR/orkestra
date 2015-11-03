@@ -1,0 +1,26 @@
+diff -W 190 -ruN multipath-tools-0.5.0.old/libmultipath/Makefile multipath-tools-0.5.0.new/libmultipath/Makefile
+--- multipath-tools-0.5.0.old/libmultipath/Makefile	2013-12-17 21:40:41.000000000 +0000
++++ multipath-tools-0.5.0.new/libmultipath/Makefile	2014-02-25 17:34:34.250020015 +0000
+@@ -20,19 +20,19 @@
+        log.o configure.o structs_vec.o sysfs.o prio.o checkers.o \
+        lock.o waiter.o file.o wwids.o prioritizers/alua_rtpg.o
+ 
+-LIBDM_API_FLUSH = $(shell grep -Ecs '^[a-z]*[[:space:]]+dm_task_no_flush' /usr/include/libdevmapper.h)
++LIBDM_API_FLUSH = $(shell grep -Ecs '^[a-z]*[[:space:]]+dm_task_no_flush' $(DIR_STAGE)/usr/include/libdevmapper.h)
+ 
+ ifneq ($(strip $(LIBDM_API_FLUSH)),0)
+ 	CFLAGS += -DLIBDM_API_FLUSH -D_GNU_SOURCE
+ endif
+ 
+-LIBDM_API_COOKIE = $(shell grep -Ecs '^[a-z]*[[:space:]]+dm_task_set_cookie' /usr/include/libdevmapper.h)
++LIBDM_API_COOKIE = $(shell grep -Ecs '^[a-z]*[[:space:]]+dm_task_set_cookie' $(DIR_STAGE)/usr/include/libdevmapper.h)
+ 
+ ifneq ($(strip $(LIBDM_API_COOKIE)),0)
+ 	CFLAGS += -DLIBDM_API_COOKIE
+ endif
+ 
+-LIBUDEV_API_RECVBUF = $(shell grep -Ecs '^[a-z]*[[:space:]]+udev_monitor_set_resolve_buffer_size' /usr/include/libudev.h)
++LIBUDEV_API_RECVBUF = $(shell grep -Ecs '^[a-z]*[[:space:]]+udev_monitor_set_resolve_buffer_size' $(DIR_STAGE)/usr/include/libudev.h)
+ 
+ ifneq ($(strip $(LIBUDEV_API_RECVBUF)),0)
+ 	CFLAGS += -DLIBUDEV_API_RECVBUF

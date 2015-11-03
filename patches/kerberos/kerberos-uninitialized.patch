@@ -1,0 +1,37 @@
+diff -ruN krb5-1.10.3-old/src/kdc/do_as_req.c krb5-1.10.3-new/src/kdc/do_as_req.c
+--- krb5-1.10.3-old/src/kdc/do_as_req.c	2012-08-08 23:27:55.000000000 +0100
++++ krb5-1.10.3-new/src/kdc/do_as_req.c	2012-10-16 14:49:04.920317154 +0100
+@@ -140,7 +140,7 @@
+     const char *emsg = 0;
+     int did_log = 0;
+     register int i;
+-    krb5_enctype useenctype;
++    krb5_enctype useenctype = ENCTYPE_UNKNOWN;
+     loop_respond_fn oldrespond;
+     void *oldarg;
+ 
+diff -ruN krb5-1.10.3-old/src/lib/kadm5/srv/svr_iters.c krb5-1.10.3-new/src/lib/kadm5/srv/svr_iters.c
+--- krb5-1.10.3-old/src/lib/kadm5/srv/svr_iters.c	2012-08-08 23:27:56.000000000 +0100
++++ krb5-1.10.3-new/src/lib/kadm5/srv/svr_iters.c	2012-10-16 14:35:49.420636187 +0100
+@@ -187,7 +187,7 @@
+ #ifdef BSD_REGEXPS
+     char *msg;
+ #endif
+-    char *regexp;
++    char *regexp = NULL;
+     int i, ret;
+     kadm5_server_handle_t handle = server_handle;
+ 
+diff -ruN krb5-1.10.3-old/src/slave/kprop.c krb5-1.10.3-new/src/slave/kprop.c
+--- krb5-1.10.3-old/src/slave/kprop.c	2012-08-08 23:27:57.000000000 +0100
++++ krb5-1.10.3-new/src/slave/kprop.c	2012-10-16 15:07:40.770256509 +0100
+@@ -91,7 +91,8 @@
+     int     argc;
+     char    **argv;
+ {
+-    int     fd, database_fd, database_size;
++    int     fd = -1;
++    int     database_fd, database_size;
+     krb5_error_code retval;
+     krb5_context context;
+     krb5_creds *my_creds;

@@ -1,0 +1,12 @@
+diff -ruN openvswitch-2.0.0.old/datapath/linux/Makefile.main.in openvswitch-2.0.0.new/datapath/linux/Makefile.main.in
+--- openvswitch-2.0.0.old/datapath/linux/Makefile.main.in	2013-10-15 23:12:35.000000000 +0100
++++ openvswitch-2.0.0.new/datapath/linux/Makefile.main.in	2014-01-28 13:01:56.299958913 +0000
+@@ -71,7 +71,7 @@
+ 
+ modules_install:
+ 	$(MAKE) -C $(KSRC) M=$(builddir) modules_install
+-	depmod `sed -n 's/#define UTS_RELEASE "\([^"]*\)"/\1/p' $(KSRC)/include/generated/utsrelease.h`
++	depmod -b ../../../../target -F $(KSRC)/System.map `sed -n 's/#define UTS_RELEASE "\([^"]*\)"/\1/p' $(KSRC)/include/generated/utsrelease.h`
+ endif
+ 
+ # Much of the kernel build system in this file is derived from Intel's

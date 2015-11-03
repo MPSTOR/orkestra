@@ -1,0 +1,194 @@
+diff -ruN fysom-old/fysom.py fysom-new/fysom.py
+--- fysom-old/fysom.py	2012-10-30 11:15:00.193116656 +0000
++++ fysom-new/fysom.py	2012-10-30 11:16:15.640394253 +0000
+@@ -29,9 +29,9 @@
+ """
+ USAGE
+ 
+-from fysom import Fysom
++from fsm import Fsm
+ 
+-fsm = Fysom({
++fsm = Fsm({
+   'initial': 'green',
+   'events': [
+     {'name': 'warn',  'src': 'green',  'dst': 'yellow'},
+@@ -59,7 +59,7 @@
+ 
+ MULTIPLE SRC AND TO STATES FOR A SINGLE EVENT
+ 
+-fsm = Fysom({
++fsm = Fsm({
+   'initial': 'hungry',
+   'events': [
+     {'name': 'eat',  'src': 'hungry',    'dst': 'satisfied'},
+@@ -108,7 +108,7 @@
+ All callbacks will be passed one argument 'e' which is an object with
+ following attributes:
+ 
+-  - fsm   Fysom object calling the callback
++  - fsm   Fsm object calling the callback
+   - event Event name
+   - src   Source state
+   - dst   Destination state
+@@ -128,7 +128,7 @@
+ def onyellow(e): print 'yellow'
+ def onred(e): print 'red'
+ 
+-fsm = Fysom({
++fsm = Fsm({
+   'initial': 'green',
+   'events': [
+     {'name': 'warn',  'src': 'green',  'dst': 'yellow'},
+@@ -185,7 +185,7 @@
+ will be in the 'none' state and you would need to provide an event to
+ take it out of this state:
+ 
+-fsm = Fysom({
++fsm = Fsm({
+   'events': [
+     {'name': 'startup', 'src': 'none',  'dst': 'green'},
+     {'name': 'panic',   'src': 'green', 'dst': 'red'},
+@@ -200,7 +200,7 @@
+ examples), then an implicit 'startup' event will be created for you and
+ fired when the state machine is constructed:
+ 
+-fsm = Fysom({
++fsm = Fsm({
+   'initial': 'green',
+   'events': [
+     {'name': 'panic', 'src': 'green', 'dst': 'red'},
+@@ -212,7 +212,7 @@
+ If your object already has a startup method, you can use a different
+ name for the initial event:
+ 
+-fsm = Fysom({
++fsm = Fsm({
+   'initial': {'state': 'green', 'event': 'init'},
+   'events': [
+     {'name': 'panic', 'src': 'green', 'dst': 'red'},
+@@ -224,7 +224,7 @@
+ Finally, if you want to wait to call the initiall state transition
+ event until a later date, you can defer it:
+ 
+-fsm = Fysom({
++fsm = Fsm({
+   'initial': {'state': 'green', 'event': 'init', 'defer': True},
+   'events': [
+     {'name': 'panic', 'src': 'green', 'dst': 'red'},
+@@ -260,13 +260,18 @@
+   unicode = str
+   basestring = (str, bytes)
+ 
+-class FysomError(Exception):
++class FsmError(Exception):
+   pass
+ 
+-class Fysom(object):
++class FsmReentryError(FsmError):
++  pass
++
++class Fsm(object):
+ 
+-  def __init__(self, cfg):
+-    self._apply(cfg)
++  def __init__(self):
++    self._map = {}
++    self._dmap = {}
++    self._cmap = {}
+ 
+   def isstate(self, state):
+     return self.current == state
+@@ -278,26 +283,30 @@
+   def cannot(self, event):
+     return not self.can(event)
+ 
+-  def _apply(self, cfg):
++  def apply(self, cfg):
+     init = cfg['initial'] if 'initial' in cfg else None
+     if isinstance(init, basestring):
+       init = {'state': init}
+     events = cfg['events'] if 'events' in cfg else []
+     callbacks = cfg['callbacks'] if 'callbacks' in cfg else {}
+-    tmap = {}
+-    self._map = tmap
++    tmap = self._map
+ 
+     def add(e):
+       src = [e['src']] if isinstance(e['src'], basestring) else e['src']
+       if e['name'] not in tmap:
+         tmap[e['name']] = {}
++        self._dmap[e['name']] = {}
++        self._cmap[e['name']] = {}
+       for s in src:
+         tmap[e['name']][s] = e['dst']
++        self._dmap[e['name']][s] = e.get('decision')
++        self._cmap[e['name']][s] = e.get('callback')
+ 
+     if init:
+       if 'event' not in init:
+         init['event'] = 'startup'
+-      add({'name': init['event'], 'src': 'none', 'dst': init['state']})
++      add({'name': init['event'], 'src': 'none', 'dst': init['state'],
++           'callback': init.get('callback'), 'decision': init.get('decision')})
+ 
+     for e in events:
+       add(e)
+@@ -318,36 +327,49 @@
+     def fn(**kwargs):
+ 
+       if hasattr(self, 'transition'):
+-        raise FysomError("event %s inappropriate because previous"
++        raise FsmError("event %s inappropriate because previous"
+                          " transition did not complete" % event)
++
+       if not self.can(event):
+-        raise FysomError("event %s inappropriate in current state"
++        raise FsmError("event %s inappropriate in current state"
+                          " %s" % (event, self.current))
+-
+       src = self.current
++      decision = self._dmap[event][src]
+       dst = self._map[event][src]
++      callback = self._cmap[event][src]
+ 
+       class _e_obj(object):
+         pass
+       e = _e_obj()
+       e.fsm, e.event, e.src, e.dst = self, event, src, dst
++      
++      print "\tReceived event '%s', current '%s' dest '%s'" % (e.event, e.src, e.dst)
+       for k in kwargs:
+         setattr(e, k, kwargs[k])
+ 
+-      if self.current != dst:
+-        if self._before_event(e) == False:
+-          return
++      if self._before_event(e) == False:
++        return
++
++      if callable(callback):
++        callback(e)
++      else:
++        self._after_event(e)
++
++      if callable(decision) and isinstance(dst, list):
++        e.dst = decision(e)
++
++      if self.current != e.dst:
+         def _tran():
+           delattr(self, 'transition')
+-          self.current = dst
++          self.current = e.dst
+           self._enter_state(e)
+           self._change_state(e)
+-          self._after_event(e)
+         self.transition = _tran
+ 
+       if self._leave_state(e) != False:
+         if hasattr(self, 'transition'):
+           self.transition()
++      self.active = False
+       
+     return fn
+ 

@@ -1,0 +1,58 @@
+diff -ruN rtslib-old/rtslib/utils.py rtslib-new/rtslib/utils.py
+--- rtslib-old/rtslib/utils.py	2012-05-08 16:40:54.000000000 +0100
++++ rtslib-new/rtslib/utils.py	2012-12-18 12:21:09.810636694 +0000
+@@ -352,21 +352,30 @@
+                               161,  # Carmel 8-port SATA Disks
+                               199,  # Veritas volume manager (VxVM) volumes
+                               201,  # Veritas VxVM dynamic multipathing driver
+-                              230,  # ZFS ZVols
+-                              240,  # LOCAL/EXPERIMENTAL USE
+-                              241,  # LOCAL/EXPERIMENTAL USE
+-                              242,  # LOCAL/EXPERIMENTAL USE
+-                              243,  # LOCAL/EXPERIMENTAL USE
+-                              244,  # LOCAL/EXPERIMENTAL USE
+-                              245,  # LOCAL/EXPERIMENTAL USE
+-                              246,  # LOCAL/EXPERIMENTAL USE
+-                              247,  # LOCAL/EXPERIMENTAL USE
+-                              248,  # LOCAL/EXPERIMENTAL USE
+-                              249,  # LOCAL/EXPERIMENTAL USE
+-                              250,  # LOCAL/EXPERIMENTAL USE
+-                              251,  # LOCAL/EXPERIMENTAL USE
+-                              252,  # LOCAL/EXPERIMENTAL USE
+-                              253,  # LOCAL/EXPERIMENTAL USE
++                              230,  # MPSTOR LogicalVolume block
++                              231,  # MPSTOR LogicalVolume block
++                              232,  # MPSTOR LogicalVolume block
++                              233,  # MPSTOR LogicalVolume block
++                              234,  # MPSTOR LogicalVolume block
++                              235,  # MPSTOR LogicalVolume block
++                              236,  # MPSTOR LogicalVolume block
++                              237,  # MPSTOR LogicalVolume block
++                              238,  # MPSTOR LogicalVolume block
++                              239,  # MPSTOR LogicalVolume block
++                              240,  # MPSTOR LogicalVolume block
++                              241,  # MPSTOR LogicalVolume block
++                              242,  # MPSTOR LogicalVolume block
++                              243,  # MPSTOR LogicalVolume block
++                              244,  # MPSTOR LogicalVolume block
++                              245,  # MPSTOR LogicalVolume block
++                              246,  # MPSTOR LogicalVolume block
++                              247,  # MPSTOR LogicalVolume block
++                              248,  # MPSTOR LogicalVolume block
++                              249,  # MPSTOR LogicalVolume block
++                              250,  # MPSTOR LogicalVolume block
++                              251,  # MPSTOR LogicalVolume block
++                              252,  # MPSTOR LogicalVolume block
++                              253,  # MPSTOR LogicalVolume block
+                               254   # LOCAL/EXPERIMENTAL USE
+                              ]
+     if major in type_disk_known_majors:
+@@ -703,7 +712,7 @@
+     for iface in ifnames:
+         ifaddresses = netifaces.ifaddresses(iface)
+         if netifaces.AF_INET in ifaddresses:
+-            addrs.extend(addr['addr'] 
++            addrs.extend(addr['addr']
+                          for addr in ifaddresses[netifaces.AF_INET]
+                          if not addr['addr'].startswith('127.'))
+         if netifaces.AF_INET6 in ifaddresses:

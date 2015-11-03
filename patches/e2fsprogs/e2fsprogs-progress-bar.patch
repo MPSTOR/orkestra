@@ -1,0 +1,141 @@
+diff --git a/lib/ext2fs/ext2fs.h b/lib/ext2fs/ext2fs.h
+index 4e7711a..ac3370e 100644
+--- a/lib/ext2fs/ext2fs.h
++++ b/lib/ext2fs/ext2fs.h
+@@ -215,6 +215,8 @@ typedef struct ext2_file *ext2_file_t;
+ struct opaque_ext2_group_desc;
+ 
+ struct struct_ext2_filsys {
++	/* it is initialized to zero in ext2fs_initialize */
++	char				mpstor_label[256];
+ 	errcode_t			magic;
+ 	io_channel			io;
+ 	int				flags;
+diff --git a/lib/ext2fs/progress.c b/lib/ext2fs/progress.c
+index 37d1509..8745c80 100644
+--- a/lib/ext2fs/progress.c
++++ b/lib/ext2fs/progress.c
+@@ -14,6 +14,12 @@
+ #include "ext2fs.h"
+ #include "ext2fsP.h"
+ 
++#define PROGRESS_INODES 0.10
++#define PROGRESS_SUPERBLOCKS 0.85
++#define PROGRESS_JOURNAL 0.05
++
++static int mpstor_stage = 0;
++static FILE *mpstor_file_ptr = NULL;
+ static char spaces[80], backspaces[80];
+ 
+ static int int_log10(unsigned int arg)
+@@ -58,6 +64,14 @@ void ext2fs_numeric_progress_init(ext2_filsys fs,
+ 		fputs(label, stdout);
+ 		fflush(stdout);
+ 	}
++
++	// if I run the application with the option -X
++	if (fs->mpstor_label[0] != 0)
++		mpstor_stage += 1;
++
++	if (mpstor_stage == 1) {
++		mpstor_file_ptr = fopen(fs->mpstor_label,"w");
++	}
+ }
+ 
+ void ext2fs_numeric_progress_update(ext2_filsys fs,
+@@ -72,6 +86,27 @@ void ext2fs_numeric_progress_update(ext2_filsys fs,
+ 	printf("%*llu/%*llu", progress->log_max, val,
+ 	       progress->log_max, progress->max);
+ 	fprintf(stdout, "%.*s", (2*progress->log_max)+1, backspaces);
++
++	if (fs->mpstor_label[0] != 0) {
++		double prog = (double)val/(double)progress->max;
++
++		if (mpstor_stage == 1) {
++			rewind(mpstor_file_ptr);
++			fprintf(mpstor_file_ptr, "%f\n", prog * PROGRESS_INODES);
++		} else if (mpstor_stage == 2) {
++				rewind(mpstor_file_ptr);
++				fprintf(mpstor_file_ptr, "%f\n", PROGRESS_INODES + prog * PROGRESS_SUPERBLOCKS);
++
++			}
++			else if (mpstor_stage == 3) {
++				rewind(mpstor_file_ptr);
++				fprintf(mpstor_file_ptr, "%f\n", PROGRESS_INODES + PROGRESS_SUPERBLOCKS +
++								 prog * PROGRESS_JOURNAL);
++			}
++	}
++	//printf("%*llu/%*llu", progress->log_max, val,
++	//       progress->log_max, progress->max);
++	//fprintf(stdout, "%.*s", (2*progress->log_max)+1, backspaces);
+ }
+ 
+ void ext2fs_numeric_progress_close(ext2_filsys fs,
+@@ -84,4 +119,10 @@ void ext2fs_numeric_progress_close(ext2_filsys fs,
+ 	fprintf(stdout, "%.*s", (2*progress->log_max)+1, backspaces);
+ 	if (message)
+ 		fputs(message, stdout);
++
++	if ((fs->mpstor_label[0] != 0) && (mpstor_stage == 3)) {
++		rewind(mpstor_file_ptr);
++		fprintf(mpstor_file_ptr, "%f", 1.0);
++		fclose(mpstor_file_ptr);
++	}
+ }
+diff --git a/misc/mke2fs.c b/misc/mke2fs.c
+index 0d793f7..b04b2b2 100644
+--- a/misc/mke2fs.c
++++ b/misc/mke2fs.c
+@@ -102,6 +102,7 @@ struct ext2_super_block fs_param;
+ char *fs_uuid = NULL;
+ char *creator_os;
+ char *volume_label;
++char *mpstor_id_label;
+ char *mount_dir;
+ char *journal_device;
+ int sync_kludge;	/* Set using the MKE2FS_SYNC env. option */
+@@ -123,7 +124,7 @@ static void usage(void)
+ 	"[-M last-mounted-directory]\n\t[-O feature[,...]] "
+ 	"[-r fs-revision] [-E extended-option[,...]]\n"
+ 	"\t[-t fs-type] [-T usage-type ] [-U UUID] "
+-	"[-jnqvDFKSV] device [blocks-count]\n"),
++	"[-jnqvDFKSV] [-X filename] device [blocks-count]\n"),
+ 		program_name);
+ 	exit(1);
+ }
+@@ -1322,7 +1323,7 @@ profile_error:
+ 	}
+ 
+ 	while ((c = getopt (argc, argv,
+-		    "b:cg:i:jl:m:no:qr:s:t:vC:DE:FG:I:J:KL:M:N:O:R:ST:U:V")) != EOF) {
++		    "b:cg:i:jl:m:no:qr:s:t:vC:DE:FG:I:J:KL:M:N:O:R:ST:U:VX:")) != EOF) {
+ 		switch (c) {
+ 		case 'b':
+ 			blocksize = strtol(optarg, &tmp, 0);
+@@ -1512,6 +1513,9 @@ profile_error:
+ 			/* Print version number and exit */
+ 			show_version_only++;
+ 			break;
++		case 'X':
++			mpstor_id_label = optarg;
++			break;
+ 		default:
+ 			usage();
+ 		}
+@@ -2381,6 +2385,16 @@ int main (int argc, char *argv[])
+ 			~EXT2_FEATURE_INCOMPAT_FILETYPE;
+ 
+ 	/*
++	 * Set the mpstor label...
++	 */
++	if (mpstor_id_label) {
++		memset(fs->mpstor_label, 0,
++		       sizeof(fs->mpstor_label));
++		strncpy(fs->mpstor_label, mpstor_id_label,
++			sizeof(fs->mpstor_label));
++	}
++
++	/*
+ 	 * Set the volume label...
+ 	 */
+ 	if (volume_label) {

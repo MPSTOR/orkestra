@@ -1,0 +1,17 @@
+# On Linux, find_library tries to run external programs (/sbin/ldconfig, gcc, and objdump)
+# to find the library file, but in orkestra we don't have it.
+# The workround is to set the name of the C library : /lib/libc.so.6
+
+diff -ruN Twisted-11.1.0.old/twisted/python/_inotify.py Twisted-11.1.0.new/twisted/python/_inotify.py
+--- Twisted-11.1.0.old/twisted/python/_inotify.py	2011-06-12 01:44:24.000000000 +0000
++++ Twisted-11.1.0.new/twisted/python/_inotify.py	2015-06-11 13:40:08.216091157 +0000
+@@ -94,7 +94,8 @@
+ 
+ 
+ 
+-name = ctypes.util.find_library('c')
++#name = ctypes.util.find_library('c')
++name='/lib/libc.so.6'
+ if not name:
+     raise ImportError("Can't find C library.")
+ libc = ctypes.cdll.LoadLibrary(name)

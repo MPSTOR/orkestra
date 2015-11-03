@@ -1,0 +1,20 @@
+diff -W 190 -ruN libguestfs-1.24.6-old/configure libguestfs-1.24.6-new/configure
+--- libguestfs-1.24.6-old/configure	2014-02-12 15:18:47.000000000 +0000
++++ libguestfs-1.24.6-new/configure	2014-02-25 15:24:23.589928460 +0000
+@@ -48446,11 +48446,11 @@
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking if __attribute__((cleanup(...))) works with this compiler" >&5
+ $as_echo_n "checking if __attribute__((cleanup(...))) works with this compiler... " >&6; }
+ if test "$cross_compiling" = yes; then :
+-  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
+-$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
+-as_fn_error $? "cannot run test program while cross compiling
+-See \`config.log' for more details" "$LINENO" 5; }
+-else
++#  { { $as_echo "$as_me:${as_lineno-$LINENO}: error: in \`$ac_pwd':" >&5
++#$as_echo "$as_me: error: in \`$ac_pwd':" >&2;}
++#as_fn_error $? "cannot run test program while cross compiling
++#See \`config.log' for more details" "$LINENO" 5; }
++#else
+   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+ /* end confdefs.h.  */
+ 

@@ -1,0 +1,11 @@
+diff -ruN rtslib-old/rtslib/utils.py rtslib-new/rtslib/utils.py
+--- rtslib-old/rtslib/utils.py	2012-05-08 15:40:54.000000000 +0000
++++ rtslib-new/rtslib/utils.py	2015-05-28 16:01:19.946874767 +0000
+@@ -231,6 +231,7 @@
+     # TODO: Make adding new majors on-the-fly possible, using some config file
+     # for instance, maybe an additionnal list argument, or even a match all
+     # mode for overrides ?
++    return 0
+ 
+     # Make sure we are dealing with a block device
+     (major, minor) = get_block_numbers(dev)

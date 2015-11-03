@@ -1,0 +1,12 @@
+diff -uNr otp_src_R15B01-old/lib/tools/emacs/Makefile otp_src_R15B01-new/lib/tools/emacs/Makefile
+--- otp_src_R15B01-old/lib/tools/emacs/Makefile	2012-04-01 19:15:00.000000000 +0100
++++ otp_src_R15B01-new/lib/tools/emacs/Makefile	2012-08-07 11:39:03.720233522 +0100
+@@ -51,7 +51,7 @@
+ 
+ ELC_FILES = $(EMACS_FILES:%=%.elc) 
+ 
+-TEST_FILES = test.erl.indented test.erl.orig
++TEST_FILES = test.erl.indented
+ 
+ # ----------------------------------------------------
+ # Targets

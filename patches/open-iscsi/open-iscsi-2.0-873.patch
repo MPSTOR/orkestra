@@ -1,0 +1,54 @@
+diff -ruN open-iscsi-2.0-873-old/Makefile open-iscsi-2.0-873-new/Makefile
+--- open-iscsi-2.0-873-old/Makefile	2012-05-21 01:59:24.000000000 +0100
++++ open-iscsi-2.0-873-new/Makefile	2012-10-08 11:18:27.830310646 +0100
+@@ -115,10 +115,8 @@
+ 	$(INSTALL) -m 644 $^ $(DESTDIR)$(etcdir)/iscsi/ifaces
+ 
+ install_etc: $(ETCFILES)
+-	if [ ! -f /etc/iscsi/iscsid.conf ]; then \
+ 		$(INSTALL) -d $(DESTDIR)$(etcdir)/iscsi ; \
+ 		$(INSTALL) -m 644 $^ $(DESTDIR)$(etcdir)/iscsi ; \
+-	fi
+ 
+ install_doc: $(MANPAGES)
+ 	$(INSTALL) -d $(DESTDIR)$(mandir)/man8
+@@ -128,13 +126,11 @@
+ 	$(MAKE) -C kernel install_kernel
+ 
+ install_iname:
+-	if [ ! -f /etc/iscsi/initiatorname.iscsi ]; then \
+ 		echo "InitiatorName=`$(DESTDIR)/sbin/iscsi-iname`" > $(DESTDIR)/etc/iscsi/initiatorname.iscsi ; \
+ 		echo "***************************************************" ; \
+ 		echo "Setting InitiatorName to `cat $(DESTDIR)/etc/iscsi/initiatorname.iscsi`" ; \
+ 		echo "To override edit /etc/iscsi/initiatorname.iscsi" ; \
+ 		echo "***************************************************" ; \
+-	fi
+ 
+ depend:
+ 	for dir in usr utils utils/fwparam_ibft; do \
+diff -ruN open-iscsi-2.0-873-old/usr/Makefile open-iscsi-2.0-873-new/usr/Makefile
+--- open-iscsi-2.0-873-old/usr/Makefile	2012-05-21 01:59:24.000000000 +0100
++++ open-iscsi-2.0-873-new/usr/Makefile	2012-10-08 13:54:35.382190641 +0100
+@@ -10,16 +10,13 @@
+ KSUBLEVEL=$(shell cat $(KSRC)/Makefile | awk -F= '/^SUBLEVEL =/ {print $$2}' | \
+ 			sed 's/^[ \t]*//;s/[ \t]*$$//')
+ 
++# NOTE(andrea): NETLINK_ISCSI is defined in:
++#  output/host/usr/x86_64-unknown-linux-gnu/sysroot/usr/include/linux/netlink.h
++#  it's wrong to test only the SUBLEVEL and not the VERSION and PATCHLEVEL
++#  for that reason I force a value for NETLINK_ISCSI
++#
+ ifeq ($(OSNAME),Linux)
+-	ifeq ($(KSUBLEVEL),11)
+-		IPC_CFLAGS=-DNETLINK_ISCSI=12 -D_GNU_SOURCE
+-	else
+-	ifeq ($(KSUBLEVEL),12)
+-		IPC_CFLAGS=-DNETLINK_ISCSI=12 -D_GNU_SOURCE
+-	else
+-		IPC_CFLAGS=-DNETLINK_ISCSI=8 -D_GNU_SOURCE
+-	endif
+-	endif
++IPC_CFLAGS=-DNETLINK_ISCSI=8 -D_GNU_SOURCE
+ IPC_OBJ=netlink.o
+ else
+ ifeq ($(OSNAME),FreeBSD)

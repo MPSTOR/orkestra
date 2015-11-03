@@ -1,0 +1,12 @@
+diff -pruN sysvinit-2.88/src/shutdown.c sysvinit-2.88.fix/src/shutdown.c
+--- sysvinit-2.88/src/shutdown.c	2010-03-23 14:37:01.000000000 +0000
++++ sysvinit-2.88.fix/src/shutdown.c	2014-01-27 11:21:57.272441550 +0000
+@@ -387,7 +387,7 @@ void fastdown()
+ 	if (do_halt) {
+ 		fprintf(stderr, "The system is halted. Press CTRL-ALT-DEL "
+ 				"or turn off power\r\n");
+-		init_reboot(BMAGIC_HALT);
++		init_reboot(BMAGIC_POWEROFF);
+ 		exit(0);
+ 	}
+ 
